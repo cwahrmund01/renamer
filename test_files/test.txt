@@ -1,0 +1,15 @@
+this is a test file with a unique word: goober
+Whenever goober is found it should be changed
+to the new string, whatever that may be. If
+testing changes, you should make sure to
+make a copy because if the word
+goober changes but not all of them,
+it will be a pain to find all of the
+GOOBERS in order to replace them.
+this_goober_should_be_safe
+this goober should not be safe
+this.goober should also be safe
+but not this gOoBer
+make sure it finds this GOOBER
+this g o o b e r is hiding
+gooober should be safe too
