@@ -15,31 +15,62 @@ args = parser.parse_args()
 verboseprint = print if args.verbose else lambda *a, **k: None
 
 def rename_tarball(tar):
-    pass
+    print("Renaming tar.gz files not implemented yet, skipping...")
 
 def unpack_tarball(tar):
     pass
 
 def rename_file(file_path, old, new):
-    pass
+    verboseprint(f"Renaming file: '{file_path}'...")
+    base_dir, file_name = os.path.split(file_path)
+    print(f"Base name: {file_name}")
+    print(f"Base dir: {base_dir}")
 
 def rename_dir_contents(dir_path, old, new):
     pass
 
 def rename_dir(dir_path, old, new):
-    print(dir_path)
-    print(os.listdir(dir_path))
+    verboseprint(f"Renaming directory: '{dir_path}'...")
+    contents = os.listdir(dir_path)
+    base_dir, dir_name = os.path.split(dir_path)
+    print(f"Base name: {dir_name}")
+    print(f"Base dir: {base_dir}")
 
-def parse_dir_name(dir_name):
-    if os.getcwd() == dir_name:
-        return dir_name
-    elif dir_name.startswith("/"):
-        if os.path.isdir(dir_name) or os.path.isfile(dir_name):
-            return dir_name
+def parse_path(path):
+    verboseprint("Parsing directory string")
+    if path.endswith("/"):
+        verboseprint("Ends with '/' removing to avoid confusing later code...")
+        path = path[:-1]
+
+    if os.getcwd() == path:
+        verboseprint(f"Directory is current directory, no need to parse: {path}")
+        return path, True
+    elif path.startswith("/"):
+        verboseprint("Absolute path given, testing if it is valid...")
+        if os.path.isdir(path):
+            verboseprint(f"{path} is a directory")
+            return path, True
+        elif os.path.isfile(path):
+            verboseprint(f"{path} is a file")
+            return path, True
         else:
             raise Exception("The directory passed starts with '/' "
                             "but is not a valid absolute path\n"
-                            f"Directory passed: {dir_name}")
+                            f"Directory passed: {path}")
+    else:
+        path = os.getcwd() + '/' + path
+        verboseprint(f"Assuming relative path given, concatenating with current directory...")
+        verboseprint(f"Concatenated directory: {path}")
+        if os.path.isdir(path):
+            verboseprint(f"{path} is a directory")
+            return path, True
+        elif os.path.isfile(path):
+            verboseprint(f"{path} is a file")
+            return path, False
+        else:
+            raise Exception("Directory input does not start with '/'. "
+                            "Assumed path relative to current working "
+                            f"directory.\n{path} not a valid directory or file.")
 
 def validate_old_and_new(old, new):
     if len(old.split()) < 1:
@@ -58,21 +89,17 @@ def validate_old_and_new(old, new):
 
 def main():
     verboseprint("This is verbose")
+
+    path, is_dir = parse_path(args.directory)
+    validate_old_and_new(args.old, args.new)
+
     verboseprint("Original name:", args.old)
     verboseprint("New name:", args.new)
-    verboseprint("Directory:", args.directory)
 
-    dir_name = parse_dir_name(args.directory)
-    old, new = validate_old_and_new(args.old, args.new)
-
-    if os.path.isdir(args.directory):
-        print("is dir")
-    elif os.path.isfile(args.directory):
-        print("is file")
+    if is_dir:
+        rename_dir(path, args.old, args.new)
     else:
-        print("is neither")
-
-    rename_dir(args.directory, args.old, args.new)
+        rename_file(path, args.old, args.new)
 
 
 
