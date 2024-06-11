@@ -20,11 +20,34 @@ def rename_tarball(tar):
 def unpack_tarball(tar):
     pass
 
+def rename_file_contents(file_path, old, new):
+    with open(file_path, "r") as old_file:
+        verboseprint(f"    Opening file for content renaming")
+        lines = old_file.readlines()
+        file_changed = False
+        for i in range(len(lines)):
+            if old in lines[i]:
+                verboseprint(f"    [Rename] Renaming line {i+1} in file {file_path}...")
+                lines[i] = lines[i].replace(old, new)
+                file_changed = True
+
+    if file_changed:
+        verboseprint("    Overwriting file with renamed lines.")
+        with open(file_path, "w") as new_file:
+            for line in lines:
+                new_file.write(line)
+    else:
+        verboseprint("    No lines changed, no need to overwrite.")
+    verboseprint("    Finished with file")
+        
 def rename_file(file_path, old, new):
-    verboseprint(f"Renaming file: '{file_path}'...")
+    verboseprint(f"---Renaming file: '{file_path}'---")
     base_dir, file_name = os.path.split(file_path)
-    print(f"Base name: {file_name}")
-    print(f"Base dir: {base_dir}")
+    new_file_name = file_name.replace(old, new)
+    new_file_path = base_dir + "/" + new_file_name
+    verboseprint(f"    [Rename] Renaming file {file_path}: {file_name} --> {new_file_name}")
+    os.rename(file_path, new_file_path)
+    rename_file_contents(new_file_path, old, new)
 
 def rename_dir_contents(dir_path, old, new):
     pass
