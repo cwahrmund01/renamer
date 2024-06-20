@@ -21,8 +21,8 @@ def unpack_tarball(tar):
     pass
 
 def rename_file_contents(file_path, old, new):
+    verboseprint(f"    Opening file for content renaming")
     with open(file_path, "r") as old_file:
-        verboseprint(f"    Opening file for content renaming")
         lines = old_file.readlines()
         file_changed = False
         for i in range(len(lines)):
@@ -43,21 +43,34 @@ def rename_file_contents(file_path, old, new):
 def rename_file(file_path, old, new):
     verboseprint(f"---Renaming file: '{file_path}'---")
     base_dir, file_name = os.path.split(file_path)
-    new_file_name = file_name.replace(old, new)
-    new_file_path = base_dir + "/" + new_file_name
-    verboseprint(f"    [Rename] Renaming file {file_path}: {file_name} --> {new_file_name}")
-    os.rename(file_path, new_file_path)
-    rename_file_contents(new_file_path, old, new)
+
+    if old in file_name:
+        new_file_name = file_name.replace(old, new)
+        new_file_path = f"{base_dir}/{new_file_name}"
+        verboseprint(f"    [Rename] Renaming file {file_path}: {file_name} --> {new_file_name}")
+        os.rename(file_path, new_file_path)
+        rename_file_contents(new_file_path, old, new)
+        return
+
+    rename_file_contents(file_path, old, new)
 
 def rename_dir_contents(dir_path, old, new):
-    pass
+    contents = os.listdir(dir_path)
+    for thing in contents:
+        print(f"{dir_path}/{thing}")
 
 def rename_dir(dir_path, old, new):
-    verboseprint(f"Renaming directory: '{dir_path}'...")
-    contents = os.listdir(dir_path)
+    verboseprint(f"---Renaming directory: '{dir_path}'---")
     base_dir, dir_name = os.path.split(dir_path)
-    print(f"Base name: {dir_name}")
-    print(f"Base dir: {base_dir}")
+    if old in dir_name:
+        new_dir_name = dir_name.replace(old, new)
+        new_dir_path = f"{base_dir}/{new_dir_name}"
+        verboseprint(f"    [Rename] Renaming directory {dir_path}: {dir_name} --> {new_dir_name}")
+        os.rename(dir_path, new_dir_path)
+        rename_dir_contents(new_dir_path, old, new)
+        return
+
+    rename_dir_contents(dir_path, old, new)
 
 def parse_path(path):
     verboseprint("Parsing directory string")
@@ -111,7 +124,7 @@ def validate_old_and_new(old, new):
         raise Exception("New string should be just one word, no spaces.")
 
 def main():
-    verboseprint("This is verbose")
+    verboseprint("Verbose mode...")
 
     path, is_dir = parse_path(args.directory)
     validate_old_and_new(args.old, args.new)
